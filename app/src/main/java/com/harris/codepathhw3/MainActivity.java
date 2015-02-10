@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Picture;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.Toast;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import java.util.ArrayList;
@@ -43,6 +45,15 @@ public class MainActivity extends Activity {
     actionBar.setTitle("Google Image Searcher");
     actionBar.setIcon(R.mipmap.ic_launcher);
     editText = (EditText) findViewById(R.id.editText);
+    editText.setOnKeyListener(new View.OnKeyListener() {
+      @Override public boolean onKey(View v, int keyCode, KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+          search();
+          return true;
+        }
+        return false;
+      }
+    });
 
     searchButton = (Button)findViewById(R.id.btn_search);
     searchButton.setOnClickListener(new View.OnClickListener() {
@@ -65,7 +76,23 @@ public class MainActivity extends Activity {
     });
   }
 
+  @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == FETCH_SETTING && resultCode == RESULT_OK) {
+      imageType = data.getExtras().getString("image_type");
+      imageSize = data.getExtras().getString("image_size");
+      colorFilter = data.getExtras().getString("color_filter");
+      if (editText.getText().length() > 0) {
+        search();
+      }
+    }
+  }
+
   private void search() {
+    if (editText.getText().length() == 0) {
+      Toast.makeText(this, "Please enter something", Toast.LENGTH_SHORT).show();
+      return;
+    }
     AsyncHttpClient client = new AsyncHttpClient();
     client.get(populateUrl(), new JsonHttpResponseHandler(){
       @Override public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -105,6 +132,9 @@ public class MainActivity extends Activity {
     item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
       @Override public boolean onMenuItemClick(MenuItem item) {
         Intent intent = new Intent(getApplicationContext(), SettingActivity.class);
+        intent.putExtra("image_type", imageType == null ? "photo" : imageType);
+        intent.putExtra("image_size", imageSize == null ? "icon": imageSize);
+        intent.putExtra("color_filter", colorFilter == null ? "black" : colorFilter);
         startActivityForResult(intent, FETCH_SETTING);
         return true;
       }
