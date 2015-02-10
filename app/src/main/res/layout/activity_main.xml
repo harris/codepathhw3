@@ -1,0 +1,24 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+   <EditText
+       android:layout_width="fill_parent"
+       android:layout_toLeftOf="@+id/btn_search"
+       android:layout_height="wrap_content"
+       android:text="Android"
+       android:layout_alignBaseline="@+id/btn_search"
+       android:layout_marginLeft="10dp"
+       />
+
+   <Button
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:id="@+id/btn_search"
+       android:layout_alignParentRight="true"
+       android:text="Search"
+       />
+
+</RelativeLayout>
