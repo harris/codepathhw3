@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -41,11 +42,6 @@ public class MainActivity extends Activity {
     ActionBar actionBar = getActionBar();
     actionBar.setTitle("Google Image Searcher");
     actionBar.setIcon(R.mipmap.ic_launcher);
-
-    imageType = "face";
-    imageSize = "icon";
-    colorFilter = "black";
-
     editText = (EditText) findViewById(R.id.editText);
 
     searchButton = (Button)findViewById(R.id.btn_search);
@@ -60,6 +56,13 @@ public class MainActivity extends Activity {
     imageResultAdapter =
         new ImageResultAdapter<>(getApplicationContext(),  imageResults);
     imagesGrid.setAdapter(imageResultAdapter);
+    imagesGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+      @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent intent = new Intent(MainActivity.this, ImageDisplayActivity.class);
+        intent.putExtra("url", imageResults.get(position).getFullUrl());
+        startActivity(intent);
+      }
+    });
   }
 
   private void search() {
@@ -79,7 +82,7 @@ public class MainActivity extends Activity {
   }
 
   private String populateUrl() {
-    String url = "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=" + editText.getText().toString();
+    String url = "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&rsz=8&q=" + editText.getText().toString();
     if (imageType != null) {
       url += "&imgtype=" + imageType;
     }

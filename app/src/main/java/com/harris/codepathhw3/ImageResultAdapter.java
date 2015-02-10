@@ -1,6 +1,7 @@
 package com.harris.codepathhw3;
 
 import android.content.Context;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,7 @@ public class ImageResultAdapter<T> extends ArrayAdapter<ImageResult>{
   private ImageView imageView;
 
   public ImageResultAdapter(Context context, List<ImageResult> objects) {
-    super(context, android.R.layout.simple_list_item_1, objects);
+    super(context, R.layout.image_result_cell, objects);
   }
 
   @Override public View getView(int position, View convertView, ViewGroup parent) {
@@ -33,7 +34,7 @@ public class ImageResultAdapter<T> extends ArrayAdapter<ImageResult>{
     description = (TextView) convertView.findViewById(R.id.description);
     imageView = (ImageView) convertView.findViewById(R.id.image_view);
     Picasso.with(getContext()).load(imageResult.getThumbUrl()).into(imageView);
-    description.setText(imageResult.getTitle());
+    description.setText(Html.fromHtml(imageResult.getTitle()));
     return convertView;
   }
 }
