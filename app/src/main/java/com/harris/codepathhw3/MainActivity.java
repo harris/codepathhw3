@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
     editText.setOnKeyListener(new View.OnKeyListener() {
       @Override public boolean onKey(View v, int keyCode, KeyEvent event) {
         if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-          search();
+          search(-1);
           return true;
         }
         return false;
@@ -58,14 +58,14 @@ public class MainActivity extends Activity {
     searchButton = (Button)findViewById(R.id.btn_search);
     searchButton.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
-        search();
+        search(-1);
       }
     });
 
     imagesGrid = (GridView) findViewById(R.id.images_grid);
     imageResults = new ArrayList<>();
     imageResultAdapter =
-        new ImageResultAdapter<>(getApplicationContext(),  imageResults);
+        new ImageResultAdapter<>(this,  imageResults);
     imagesGrid.setAdapter(imageResultAdapter);
     imagesGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -74,31 +74,41 @@ public class MainActivity extends Activity {
         startActivity(intent);
       }
     });
+    imagesGrid.setOnScrollListener(new EndlessScrollListener() {
+      @Override public void onLoadMore(int page, int totalItemsCount) {
+        customLoadMoreDataFromApi(totalItemsCount);
+      }
+    });
+  }
+  public void customLoadMoreDataFromApi(int offset) {
+    search(offset);
   }
 
-  @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == FETCH_SETTING && resultCode == RESULT_OK) {
       imageType = data.getExtras().getString("image_type");
       imageSize = data.getExtras().getString("image_size");
       colorFilter = data.getExtras().getString("color_filter");
       if (editText.getText().length() > 0) {
-        search();
+        search(-1);
       }
     }
   }
 
-  private void search() {
+  private void search(final int offset) {
     if (editText.getText().length() == 0) {
       Toast.makeText(this, "Please enter something", Toast.LENGTH_SHORT).show();
       return;
     }
     AsyncHttpClient client = new AsyncHttpClient();
-    client.get(populateUrl(), new JsonHttpResponseHandler(){
+    client.get(populateUrl(offset), new JsonHttpResponseHandler(){
       @Override public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
         try {
           JSONArray imageResultData = response.getJSONObject("responseData").getJSONArray("results");
-          imageResultAdapter.clear();
+          if (offset == -1) {
+            imageResultAdapter.clear();
+          }
           imageResultAdapter.addAll(ImageResult.fromJSONArray(imageResultData));
         } catch (JSONException e) {
           e.printStackTrace();
@@ -108,7 +118,7 @@ public class MainActivity extends Activity {
 
   }
 
-  private String populateUrl() {
+  private String populateUrl(int offset) {
     String url = "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&rsz=8&q=" + editText.getText().toString();
     if (imageType != null) {
       url += "&imgtype=" + imageType;
@@ -120,6 +130,9 @@ public class MainActivity extends Activity {
 
     if (colorFilter!= null) {
       url += "&imgcolor=" + colorFilter;
+    }
+    if (offset != -1) {
+      url += "&start=" + offset;
     }
     return url;
   }
