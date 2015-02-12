@@ -111,6 +111,7 @@
           android:layout_height="wrap_content"
           android:layout_toRightOf="@+id/tv_site_filter"
           android:gravity="right"
+          android:id="@+id/et_site_filter"
           android:layout_alignBaseline="@+id/tv_site_filter"
           android:text="google"
           />

@@ -33,6 +33,7 @@ public class MainActivity extends Activity {
   private String imageType = null;
   private String imageSize= null;
   private String colorFilter= null;
+  private String siteFilter= null;
   private List<ImageResult> imageResults;
   private ImageResultAdapter<ImageResult> imageResultAdapter;
 
@@ -90,6 +91,8 @@ public class MainActivity extends Activity {
       imageType = data.getExtras().getString("image_type");
       imageSize = data.getExtras().getString("image_size");
       colorFilter = data.getExtras().getString("color_filter");
+      siteFilter = data.getExtras().getString("site_filter");
+
       if (editText.getText().length() > 0) {
         search(-1);
       }
@@ -131,6 +134,11 @@ public class MainActivity extends Activity {
     if (colorFilter!= null) {
       url += "&imgcolor=" + colorFilter;
     }
+
+    if (siteFilter!= null) {
+      url += "&as_sitesearch=" + siteFilter + ".com";
+    }
+
     if (offset != -1) {
       url += "&start=" + offset;
     }
@@ -148,6 +156,7 @@ public class MainActivity extends Activity {
         intent.putExtra("image_type", imageType == null ? "photo" : imageType);
         intent.putExtra("image_size", imageSize == null ? "icon": imageSize);
         intent.putExtra("color_filter", colorFilter == null ? "black" : colorFilter);
+        intent.putExtra("site_filter", siteFilter == null ? "google" : siteFilter);
         startActivityForResult(intent, FETCH_SETTING);
         return true;
       }
